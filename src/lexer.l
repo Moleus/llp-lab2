@@ -32,10 +32,10 @@
 ([+-]?[0-9]+(\.[0-9]+)?)|([+-]?\.[0-9]+) { yylval.double_value = atof(yytext); return DOUBLE_T; }
 [a-zA-Z_][a-zA-Z0-9_]* { yylval.string = strdup(yytext); return WORD_T; }
 
-"update"       {yylval.func_type = UPDATE_OP; return UPDATE;}
-"remove"       {yylval.func_type = DELETE_OP; return DELETE;}
-"create"       {yylval.func_type = CREATE_OP; return CREATE;}
-"select_all"   {yylval.func_type = SELECT_ALL_OP; return ASTERISK;}
+"update"       { yylval.func_type = UPDATE_OP; return UPDATE; }
+"remove"       { yylval.func_type = DELETE_OP; return DELETE; }
+"create"       { yylval.func_type = CREATE_OP; return CREATE; }
+"select_all"   { yylval.func_type = SELECT_ALL_OP; return ASTERISK; }
 
 [ \t\n]+ { /* ignore whitespace */ }
 

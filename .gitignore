@@ -1,3 +1,6 @@
 .*
 !.gitignore
 cmake-build-*
+y.*
+parser.h
+lex.*

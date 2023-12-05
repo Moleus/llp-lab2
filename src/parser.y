@@ -17,7 +17,6 @@
 - Поддержка арифметических операций и конкатенации строк не обязательна
 */
 
-%require "3.7"
 %code requires {
 	#define YYERROR_VERBOSE 1
     #include <stdio.h>
@@ -26,13 +25,12 @@
     #include <stdbool.h>
     #include <stdio.h>
     #include "types.h"
+    extern struct query q;
     extern int yyparse();
-    extern Query q;
 	int yylex();
 	void yyerror(const char *s);
 }
 
-%define parse.error verbose
 %union{
     int bool_value;
     int int_value;
@@ -44,11 +42,6 @@
     FilterOperation filter_op;
     Element *el;
 }
-
-%{
-#include "converter.h"
-%}
-
 
 /* symbols */
 %token LPAREN RPAREN LBRACKET RBRACKET PIPE SLASHSLASH SLASH AT COMMA AND OR NOT SEMICOLON
