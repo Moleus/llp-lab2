@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SRC_DIR "src")
 set(PARSER_DIR "${CMAKE_CURRENT_BINARY_DIR}/parser")
-file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/**.c)
-file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_LIST_DIR}/src/**.h)
 
 file(MAKE_DIRECTORY ${PARSER_DIR})
 
@@ -25,7 +23,7 @@ add_library(flex_bison STATIC "${LEXER_OUT}" "${PARSER_OUT}" "${SRC_DIR}/types.h
 set_target_properties(flex_bison PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(flex_bison PRIVATE "${SRC_DIR}")
 
-add_executable(parser "${SRC_DIR}/main.c" "${LEXER_OUT}" "${PARSER_OUT}" "${PROTO_SRC}" ${SOURCES} ${HEADERS} "${SRC_DIR}/types.h")
+add_executable(parser "${SRC_DIR}/main.c" "${LEXER_OUT}" "${PARSER_OUT}" "${PROTO_SRC}" "${SRC_DIR}/types.h")
 target_include_directories(parser PRIVATE "${PARSER_DIR}" "${SRC_DIR}" "${CMAKE_CURRENT_BINARY_DIR}" "${PROTOBUF_INCLUDE_DIRS}")
 target_link_libraries(parser PRIVATE flex_bison)
 

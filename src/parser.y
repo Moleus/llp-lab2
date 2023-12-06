@@ -26,7 +26,6 @@
     #include <stdio.h>
     #include "types.h"
     extern struct query q;
-    extern int yyparse();
 	int yylex();
 	void yyerror(const char *s);
 }
@@ -42,6 +41,10 @@
     FilterOperation filter_op;
     Element *el;
 }
+
+%{
+struct query q = {};
+%}
 
 /* symbols */
 %token LPAREN RPAREN LBRACKET RBRACKET PIPE SLASHSLASH SLASH AT COMMA AND OR NOT SEMICOLON
