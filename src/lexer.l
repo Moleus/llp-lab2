@@ -14,16 +14,12 @@
 "//" { return SLASHSLASH; }
 "/" { return SLASH; }
 "@" { return AT; }
-"," { return COMMA; }
 "=" { return EQUALS_OP; }
 "!=" { return NOT_EQUALS_OP; }
 "<" { return LESS_THAN_OP; }
 ">" { return GREATER_THAN_OP; }
-"and" { return AND; }
-"or" { return OR; }
-"not" { return NOT; }
-";" { return SEMICOLON; }
 
+\n { return EOL; }
 "true"|"false" { yylval.bool_value = !strcmp("true", yytext); return BOOL_T; }
 
 ([+-]?[0-9]+) { yylval.int_value = atoi(yytext); return INT_T; }
@@ -39,9 +35,3 @@
 int yywrap(void){
 	return 1;
 }
-
-// "update"       { yylval.func_type = UPDATE_OP; return UPDATE; }
-// "remove"       { yylval.func_type = DELETE_OP; return DELETE; }
-// "create"       { yylval.func_type = CREATE_OP; return CREATE; }
-// "select_all"   { yylval.func_type = SELECT_ALL_OP; return ASTERISK; }
-
