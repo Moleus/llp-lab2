@@ -7,16 +7,18 @@
 #include "string.h"
 
 #define MAX_STRING_SIZE 50
+#define MAX_PATH_DEPTH 10
 
 typedef enum {
-    UPDATE_OP,
+    NOP = 0,
+    UPDATE_OP = 1,
     CREATE_OP,
     DELETE_OP,
     SELECT_ALL_OP
 } FunctionType;
 
 typedef enum {
-    EQUALS_OP,
+    EQUALS_OP = 1,
     NOT_EQUALS_OP,
     LESS_THAN_OP,
     LESS_THAN_OR_EQUALS_OP,
@@ -29,7 +31,7 @@ typedef enum {
 } FilterOperation;
 
 typedef enum {
-    BOOLEAN_TYPE,
+    BOOLEAN_TYPE = 1,
     NUMBER_TYPE,
     DOUBLE_TYPE,
     STRING_TYPE
@@ -45,10 +47,33 @@ typedef struct {
     };
 } Element;
 
-struct query {
-    FunctionType function;
-    int filters_size;
-};
+typedef struct {
+    char name[MAX_STRING_SIZE];
+} FilterTarget;
+
+typedef struct {
+    LogicalOperation operation;
+    FilterTarget left;
+    Element *right;
+} FilterExpr;
+
+
+typedef enum {
+    SINGLE_ATTRIBUTE = 1,
+    ASTERISK_PATH,
+} PathType;
+
+typedef struct {
+    char node[MAX_STRING_SIZE];
+    PathType type;
+} Path;
+
+typedef struct {
+    FilterExpr *filter;
+    FunctionType func;
+    Path path[MAX_PATH_DEPTH];
+    int path_len;
+} Query;
 
 Element *create_boolean(bool value);
 
@@ -58,8 +83,11 @@ Element *create_double(double value);
 
 Element *create_string(char *value);
 
+FilterExpr *create_filter(char *attribute, LogicalOperation operation, Element *value);
+
 void print_element(Element *el);
 
-void print_query(struct query query);
+void print_query(Query query);
 
+void add_node_to_path(Query *query, char *node);
 #endif //PARSER_TYPES_H

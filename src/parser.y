@@ -18,17 +18,21 @@
 */
 
 %code requires {
-	#define YYERROR_VERBOSE 1
+	#define YYYDEBUGYERROR_VERBOSE 1
     #include <stdio.h>
     #include <stdlib.h>
     #include <string.h>
     #include <stdbool.h>
     #include <stdio.h>
     #include "types.h"
-    extern struct query q;
+    extern Query q;
 	int yylex();
 	void yyerror(const char *s);
 }
+
+%{
+    #define YYDEBUG 1
+%}
 
 %union{
     int bool_value;
@@ -39,18 +43,18 @@
     FunctionType func_type;
     LogicalOperation logical_op;
     FilterOperation filter_op;
+    FilterExpr *filter_expr;
     Element *el;
 }
 
 %{
-struct query q = {};
+Query q = {};
 %}
+
 
 /* symbols */
 %token LPAREN RPAREN LBRACKET RBRACKET PIPE SLASHSLASH SLASH AT COMMA AND OR NOT SEMICOLON
 
-/* filter tokens */
-%token EQUALS NOTEQUALS LESSTHAN LESSTHANEQUALS GREATERTHAN GREATERTHANEQUALS
 
 /* functions */
 %token <string> UPDATE DELETE CREATE ASTERISK
@@ -60,30 +64,36 @@ struct query q = {};
 %token <string> WORD_T
 %token <double_value> DOUBLE_T
 
+/* filter tokens */
+%token <logical_op> EQUALS_T NOT_EQUALS_T LESS_THAN_T GREATER_THAN_T
+
 %type <string> function_name
-%type <string> function_arg
 %type <string> attribute
 // TODO: Добавить типы для атрибутов
-%type <string> filter_expr
+%type <filter_expr> filter_expr
 %type <string> filter
 %type <string> node
+%type <logical_op> compare_op
 
 %type <el> node_value
 
 %%
 
 query
-    : /* empty */
+    : %empty  /* empty */
     | query node filter
     | query node
     | function_call
     ;
 
+// constructs a Path in q.
 node
-    : SLASH WORD_T
-    | SLASH SLASH WORD_T
-    | SLASH SLASH ASTERISK
-    | SLASH AT
+    : SLASH WORD_T {
+        add_node_to_path(&q, $2);
+    }
+    | SLASH SLASH ASTERISK {
+        q.path[q.path_len].type = ASTERISK_PATH;
+    }
     ;
 
 node_value
@@ -93,28 +103,25 @@ node_value
     | WORD_T { $$ = create_string($1); }
 
 function_call
-    : function_name LPAREN function_arg RPAREN
+    : function_name LPAREN query RPAREN
     ;
 
-function_name
-    : WORD_T
-    ;
-
-function_arg
-    : query
-    ;
+function_name : CREATE | UPDATE | DELETE
 
 filter
-    : LBRACKET filter_expr RBRACKET
+    : LBRACKET filter_expr RBRACKET {
+        q.filter = $2;
+    }
     ;
 
 // Логическую комбинацию произвольного количества условий и булевских значений
 // В качестве любого аргумента условий могут выступать литеральные значения
 // (константы) или ссылки на значения, ассоциированные с элементами данных (поля, атрибуты, свойства)
 filter_expr
-    : node_value
-    | attribute compare_op node_value
-    | attribute SEMICOLON val_type
+    : attribute compare_op node_value {
+        $$ = create_filter($1, $2, $3);
+    }
+    ;
 
 attribute
     : AT WORD_T { $$ = $2; }
@@ -123,12 +130,11 @@ attribute
 // На равенство и неравенство для чисел, строк и булевских значений
 // На строгие и нестрогие сравнения для чисел o
 // TODO: Существование подстроки
-compare_op: EQUALS | NOTEQUALS | LESSTHAN | LESSTHANEQUALS | GREATERTHAN | GREATERTHANEQUALS;
+compare_op: EQUALS_T | NOT_EQUALS_T | LESS_THAN_T | GREATER_THAN_T;
 
-val_type: INT_T | BOOL_T | DOUBLE_T | WORD_T;
 %%
 
 void yyerror(const char *s) {
-    fprintf(stderr, "%s\n", s);
+    fprintf(stderr, "error: %s\n", s);
 }
 

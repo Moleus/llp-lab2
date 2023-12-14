@@ -7,31 +7,39 @@ void *my_malloc(size_t size) {
 }
 
 Element *create_boolean(bool value) {
-    Element *el = malloc(sizeof(Element));
+    Element *el = my_malloc(sizeof(Element));
     el->type = BOOLEAN_TYPE;
     el->boolean = value;
     return el;
 }
 
 Element *create_number(int32_t value) {
-    Element *el = malloc(sizeof(Element));
+    Element *el = my_malloc(sizeof(Element));
     el->type = NUMBER_TYPE;
     el->number = value;
     return el;
 }
 
 Element *create_double(double value) {
-    Element *el = malloc(sizeof(Element));
+    Element *el = my_malloc(sizeof(Element));
     el->type = DOUBLE_TYPE;
     el->double_number = value;
     return el;
 }
 
 Element *create_string(char *value) {
-    Element *el = malloc(sizeof(Element));
+    Element *el = my_malloc(sizeof(Element));
     el->type = STRING_TYPE;
     strcpy(el->string, value);
     return el;
+}
+
+FilterExpr *create_filter(char *attribute, LogicalOperation operation, Element *value) {
+    FilterExpr *filter = my_malloc(sizeof(FilterExpr));
+    strcpy(filter->left.name, attribute);
+    filter->operation = operation;
+    filter->right = value;
+    return filter;
 }
 
 void print_element(Element *el) {
@@ -51,27 +59,13 @@ void print_element(Element *el) {
     }
 }
 
-void print_query(struct query query) {
+void print_query(Query query) {
     printf("Query:\n");
-    printf("  Function: ");
-    switch (query.function) {
-        case UPDATE_OP:
-            printf("UPDATE_OP\n");
-            break;
-        case CREATE_OP:
-            printf("CREATE_OP\n");
-            break;
-        case DELETE_OP:
-            printf("DELETE_OP\n");
-            break;
-        case SELECT_ALL_OP:
-            printf("SELECT_ALL_OP\n");
-            break;
-        default:
-            printf("UNKNOWN\n");
-    }
-    printf("  Filters:\n");
-    for (int i = 0; i < query.filters_size; ++i) {
-        printf("    Filter %d:\n", i);
-    }
+}
+
+void add_node_to_path(Query *query, char *node) {
+    Path *path = my_malloc(sizeof(Path));
+    strcpy(path->node, node);
+    path->type = SINGLE_ATTRIBUTE;
+    query->path[query->path_len++] = *path;
 }

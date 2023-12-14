@@ -4,7 +4,7 @@ run:
 	./main
 
 build:
-	yacc -d parser.y
+	yacc --debug -d -Wall parser.y
 	flex lexer.l
 	gcc main.c types.c lex.yy.c y.tab.c -o main
 
