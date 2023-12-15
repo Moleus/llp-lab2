@@ -20,13 +20,8 @@
 ">" { return GREATER_THAN_OP; }
 
 \n { return EOL; }
-"true"|"false" { yylval.bool_value = !strcmp("true", yytext); return BOOL_T; }
 
-([+-]?[0-9]+) { yylval.int_value = atoi(yytext); return INT_T; }
-([+-]?[0-9]+(\.[0-9]+)?)|([+-]?\.[0-9]+) { yylval.double_value = atof(yytext); return DOUBLE_T; }
-[a-zA-Z_][a-zA-Z0-9_]* { yylval.string = strdup(yytext); return WORD_T; }
-
-[ \t\n]+ { /* ignore whitespace */ }
+[a-zA-Z_]* { yylval.string = strdup(yytext); return WORD_T; }
 
 . { printf("Unrecognized character: %s\n", yytext); exit(1); }
 

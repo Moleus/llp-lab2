@@ -50,7 +50,6 @@ Query q = {};
 /* symbols */
 %token LPAREN RPAREN LBRACKET RBRACKET PIPE SLASHSLASH SLASH AT
 
-
 /* functions */
 %token <string> UPDATE DELETE CREATE ASTERISK
 %token EOL
@@ -65,30 +64,32 @@ Query q = {};
 
 %type <string> function_name
 %type <string> attribute
-// TODO: Добавить типы для атрибутов
 %type <filter_expr> filter_expr
 %type <string> filter
 %type <string> node
 %type <logical_op> compare_op
-
 %type <el> node_value
 
 %%
 
 query
     : %empty  /* empty */
-    | query node filter EOL
-    | query node EOL
-    | function_call EOL
+    | query node {
+        printf("query: %s\n", $2);
+    }
+    | query node EOL {
+        printf("query with eol: %s\n", $2);
+    }
     ;
 
-// constructs a Path in q.
 node
-    : SLASH WORD_T {
-        add_node_to_path(&q, $2);
+    : WORD_T {
+        printf("node: %s\n", $1);
+        $$ = $1;
     }
-    | SLASH SLASH ASTERISK {
-        q.path[q.path_len].type = ASTERISK_PATH;
+    | SLASH WORD_T {
+        printf("word after slash: %s\n", $2);
+        $$ = $2;
     }
     ;
 
