@@ -21,9 +21,7 @@ typedef enum {
     EQUALS_OP = 1,
     NOT_EQUALS_OP,
     LESS_THAN_OP,
-    LESS_THAN_OR_EQUALS_OP,
     GREATER_THAN_OP,
-    GREATER_THAN_OR_EQUALS_OP
 } LogicalOperation;
 
 typedef enum {
@@ -57,6 +55,18 @@ typedef struct {
     Element *right;
 } FilterExpr;
 
+typedef struct {
+    ValueType type;
+    char name[MAX_STRING_SIZE];
+} Property;
+
+typedef struct Filter {
+    union {
+        Property* property; // when adding new property
+        FilterExpr* filter; // when querying
+    };
+    struct Filter *next;
+} Filter;
 
 typedef enum {
     SINGLE_ATTRIBUTE = 1,
@@ -83,7 +93,7 @@ Element *create_double(double value);
 
 Element *create_string(char *value);
 
-FilterExpr *create_filter(char *attribute, LogicalOperation operation, Element *value);
+Filter *create_filter(char *attribute, int operator, Element *value);
 
 void print_element(Element *el);
 

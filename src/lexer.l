@@ -14,14 +14,22 @@
 "//" { return SLASHSLASH; }
 "/" { return SLASH; }
 "@" { return AT; }
-"=" { return EQUALS_OP; }
-"!=" { return NOT_EQUALS_OP; }
-"<" { return LESS_THAN_OP; }
-">" { return GREATER_THAN_OP; }
+
+"="  {yylval.int_value = 0; return EQUALS_T;}
+"!=" {yylval.int_value = 1; return NOT_EQUALS_T;}
+"<"  {yylval.int_value = 2; return LESS_THAN_T;}
+">"  {yylval.int_value = 3; return GREATER_THAN_T;}
+
+"update"       {yylval.string = strdup(yytext); return UPDATE;}
+"remove"       {yylval.string = strdup(yytext); return DELETE;}
+"create"       {yylval.string = strdup(yytext); return CREATE;}
+"select_all"   {yylval.string = strdup(yytext); return ASTERISK;}
 
 \n { return EOL; }
 
 [a-zA-Z_]* { yylval.string = strdup(yytext); return WORD_T; }
+([+-]?[0-9])+           {yylval.int_value = atoi(yytext); return INT_T;}
+[+-]?([0-9]*[.])?[0-9]+ {yylval.double_value = atof(yytext); return DOUBLE_T;}
 
 . { printf("Unrecognized character: %s\n", yytext); exit(1); }
 

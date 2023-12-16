@@ -34,12 +34,35 @@ Element *create_string(char *value) {
     return el;
 }
 
-FilterExpr *create_filter(char *attribute, LogicalOperation operation, Element *value) {
-    FilterExpr *filter = my_malloc(sizeof(FilterExpr));
-    strcpy(filter->left.name, attribute);
-    filter->operation = operation;
-    filter->right = value;
+Filter *create_filter(char *attribute, int operator, Element *value) {
+    FilterExpr *filter_expr = my_malloc(sizeof(FilterExpr));
+    Filter *filter = my_malloc(sizeof(Filter));
+    strcpy(filter_expr->left.name, attribute);
+    switch (operator) {
+        case 0:
+            filter_expr->operation = EQUALS_OP;
+            break;
+        case 1:
+            filter_expr->operation = NOT_EQUALS_OP;
+            break;
+        case 2:
+            filter_expr->operation = LESS_THAN_OP;
+            break;
+        case 3:
+            filter_expr->operation = GREATER_THAN_OP;
+            break;
+    }
+    filter_expr->right = value;
+    filter->filter = filter_expr;
+    filter->next = NULL;
     return filter;
+}
+
+void add_node_to_path(Query *query, char *node) {
+    Path *path = my_malloc(sizeof(Path));
+    strcpy(path->node, node);
+    path->type = SINGLE_ATTRIBUTE;
+    query->path[query->path_len++] = *path;
 }
 
 void print_element(Element *el) {
@@ -59,13 +82,20 @@ void print_element(Element *el) {
     }
 }
 
-void print_query(Query query) {
-    printf("Query:\n");
+void print_path(Path paths[MAX_PATH_DEPTH], int path_len) {
+    for (int i = 0; i < path_len; i++) {
+        printf("%s", paths[i].node);
+        if (paths[i].type == ASTERISK_PATH) {
+            printf(".*");
+        }
+        if (i != path_len - 1) {
+            printf("/");
+        }
+    }
+    printf("\n");
 }
 
-void add_node_to_path(Query *query, char *node) {
-    Path *path = my_malloc(sizeof(Path));
-    strcpy(path->node, node);
-    path->type = SINGLE_ATTRIBUTE;
-    query->path[query->path_len++] = *path;
+void print_query(Query query) {
+    printf("Query contents: ");
+    print_path(query.path, query.path_len);
 }

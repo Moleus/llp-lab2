@@ -36,14 +36,20 @@
     char *string;
 
     FunctionType func_type;
-    LogicalOperation logical_op;
     FilterOperation filter_op;
-    FilterExpr *filter_expr;
+    Filter *filter;
     Element *el;
 }
 
 %{
 Query q = {};
+int tab_level = 0;
+
+void print_tab(long tab_level) {
+    for (int i = 0; i < tab_level; i++) {
+        printf("\t");
+    }
+}
 %}
 
 
@@ -60,54 +66,64 @@ Query q = {};
 %token <double_value> DOUBLE_T
 
 /* filter tokens */
-%token <logical_op> EQUALS_T NOT_EQUALS_T LESS_THAN_T GREATER_THAN_T
+%token <int_value> EQUALS_T NOT_EQUALS_T LESS_THAN_T GREATER_THAN_T
 
+%type <string> function_call
 %type <string> function_name
 %type <string> attribute
-%type <filter_expr> filter_expr
-%type <string> filter
+%type <filter> filter_expr
+%type <filter> filters
+%type <filter> filter
 %type <string> node
-%type <logical_op> compare_op
+%type <int_value> compare_op
 %type <el> node_value
 
 %%
 
 query
     : %empty  /* empty */
-    | query node {
-        printf("query: %s\n", $2);
-    }
-    | query node EOL {
-        printf("query with eol: %s\n", $2);
-    }
+    | query node
+    | query node EOL
+    | query node filters EOL
+    | function_call EOL
     ;
 
 node
-    : WORD_T {
-        printf("node: %s\n", $1);
-        $$ = $1;
-    }
-    | SLASH WORD_T {
+    : SLASH WORD_T {
+        tab_level++;
+        print_tab(tab_level);
+        add_node_to_path(&q, $2);
         printf("word after slash: %s\n", $2);
         $$ = $2;
     }
+    | WORD_T {
+        print_tab(tab_level);
+        add_node_to_path(&q, $1);
+        printf("node: %s\n", $1);
+        $$ = $1;
+    }
     ;
 
-node_value
-    : BOOL_T { $$ = create_boolean($1);  }
-    | INT_T { $$ = create_number($1); }
-    | DOUBLE_T { $$ = create_double($1); }
-    | WORD_T { $$ = create_string($1); }
-
 function_call
-    : function_name LPAREN query RPAREN
+    : function_name LPAREN query RPAREN {
+        printf("function call: %s\n", $1);
+    }
     ;
 
 function_name : CREATE | UPDATE | DELETE
 
+filters
+    : filter
+    | filters filter {
+        printf("filters: %s\n", $2);
+        $$ = $2;
+        $2->next = $1;
+    }
+    ;
+
 filter
     : LBRACKET filter_expr RBRACKET {
-        q.filter = $2;
+        $$ = $2;
     }
     ;
 
@@ -116,6 +132,12 @@ filter_expr
         $$ = create_filter($1, $2, $3);
     }
     ;
+
+node_value
+    : BOOL_T { $$ = create_boolean($1);  }
+    | INT_T { $$ = create_number($1); }
+    | DOUBLE_T { $$ = create_double($1); }
+    | WORD_T { $$ = create_string($1); }
 
 attribute
     : AT WORD_T { $$ = $2; }
