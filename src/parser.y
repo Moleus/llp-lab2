@@ -84,22 +84,17 @@ query
     : %empty  /* empty */
     | query node
     | query node EOL
-    | query node filters EOL
+    | query node filters
     | function_call EOL
     ;
 
 node
     : SLASH WORD_T {
-        tab_level++;
-        print_tab(tab_level);
         add_node_to_path(&q, $2);
-        printf("word after slash: %s\n", $2);
         $$ = $2;
     }
     | WORD_T {
-        print_tab(tab_level);
         add_node_to_path(&q, $1);
-        printf("node: %s\n", $1);
         $$ = $1;
     }
     ;
@@ -128,7 +123,10 @@ filter
     ;
 
 filter_expr
-    : attribute compare_op node_value {
+    : node_value {
+        $$ = create_filter_single_value($1);
+    }
+    | attribute compare_op node_value {
         $$ = create_filter($1, $2, $3);
     }
     ;

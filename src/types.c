@@ -52,9 +52,19 @@ Filter *create_filter(char *attribute, int operator, Element *value) {
             filter_expr->operation = GREATER_THAN_OP;
             break;
     }
+    filter_expr->is_single_value = false;
     filter_expr->right = value;
     filter->filter = filter_expr;
-    filter->next = NULL;
+    return filter;
+}
+
+Filter *create_filter_single_value(Element *value) {
+    Filter *filter = my_malloc(sizeof(Filter));
+    FilterExpr *filter_expr = my_malloc(sizeof(FilterExpr));
+    filter_expr->operation = NO_OP;
+    filter_expr->is_single_value = true;
+    filter_expr->right = value;
+    filter->filter = filter_expr;
     return filter;
 }
 

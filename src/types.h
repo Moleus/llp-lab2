@@ -18,6 +18,7 @@ typedef enum {
 } FunctionType;
 
 typedef enum {
+    NO_OP = 0,
     EQUALS_OP = 1,
     NOT_EQUALS_OP,
     LESS_THAN_OP,
@@ -53,6 +54,7 @@ typedef struct {
     LogicalOperation operation;
     FilterTarget left;
     Element *right;
+    bool is_single_value;
 } FilterExpr;
 
 typedef struct {
@@ -94,6 +96,8 @@ Element *create_double(double value);
 Element *create_string(char *value);
 
 Filter *create_filter(char *attribute, int operator, Element *value);
+
+Filter *create_filter_single_value(Element *value);
 
 void print_element(Element *el);
 
