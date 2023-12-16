@@ -14,7 +14,6 @@ typedef enum {
     UPDATE_OP = 1,
     CREATE_OP,
     DELETE_OP,
-    SELECT_ALL_OP
 } FunctionType;
 
 typedef enum {
@@ -80,11 +79,15 @@ typedef struct {
     PathType type;
 } Path;
 
+typedef struct Node {
+    char name[MAX_STRING_SIZE];
+    struct Node *next;
+    Filter* filters;
+} Node;
+
 typedef struct {
-    FilterExpr *filter;
     FunctionType func;
-    Path path[MAX_PATH_DEPTH];
-    int path_len;
+    Node *nodes;
 } Query;
 
 Element *create_boolean(bool value);
@@ -99,9 +102,13 @@ Filter *create_filter(char *attribute, int operator, Element *value);
 
 Filter *create_filter_single_value(Element *value);
 
+FunctionType get_function_type(char *func);
+
 void print_element(Element *el);
 
 void print_query(Query query);
 
-void add_node_to_path(Query *query, char *node);
+void add_node(Query *query, char *node);
+
+void add_filter(Query *query, Filter *filter);
 #endif //PARSER_TYPES_H

@@ -19,7 +19,8 @@ flex_target(LEXER "${SRC_DIR}/lexer.l" "${LEXER_OUT}" DEFINES_FILE "${PARSER_DIR
 bison_target(PARSER "${SRC_DIR}/parser.y" "${PARSER_OUT}" DEFINES_FILE "${PARSER_DIR}/parser.h")
 add_flex_bison_dependency(LEXER PARSER)
 
-add_library(flex_bison STATIC "${LEXER_OUT}" "${PARSER_OUT}" "${SRC_DIR}/types.h")
+add_library(flex_bison STATIC "${LEXER_OUT}" "${PARSER_OUT}" "${SRC_DIR}/types.h"
+        src/types.c)
 set_target_properties(flex_bison PROPERTIES LINKER_LANGUAGE C)
 target_include_directories(flex_bison PRIVATE "${SRC_DIR}")
 

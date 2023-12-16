@@ -3,7 +3,6 @@
 
 int main() {
     int status = yyparse();
-     print_query(q);
-//    print_allocations_size();
+    print_query(q);
     return status;
 }

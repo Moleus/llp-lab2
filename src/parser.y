@@ -44,12 +44,6 @@
 %{
 Query q = {};
 int tab_level = 0;
-
-void print_tab(long tab_level) {
-    for (int i = 0; i < tab_level; i++) {
-        printf("\t");
-    }
-}
 %}
 
 
@@ -90,29 +84,29 @@ query
 
 node
     : SLASH WORD_T {
-        add_node_to_path(&q, $2);
+        add_node(&q, $2);
         $$ = $2;
     }
     | WORD_T {
-        add_node_to_path(&q, $1);
+        add_node(&q, $1);
         $$ = $1;
     }
     ;
 
 function_call
     : function_name LPAREN query RPAREN {
-        printf("function call: %s\n", $1);
+        q.func = get_function_type($1);
     }
     ;
 
 function_name : CREATE | UPDATE | DELETE
 
 filters
-    : filter
+    : filter {
+        add_filter(&q, $1);
+    }
     | filters filter {
-        printf("filters: %s\n", $2);
-        $$ = $2;
-        $2->next = $1;
+        add_filter(&q, $2);
     }
     ;
 
