@@ -5,7 +5,7 @@ void print_filter(Filter *pFilter, int level);
 
 void *my_malloc(size_t size) {
     void *ptr = malloc(size);
-    printf("[mem] Allocated %zu bytes\n", size);
+    // printf("[mem] Allocated %zu bytes\n", size);
     return ptr;
 }
 
