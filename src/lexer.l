@@ -21,7 +21,7 @@
 ">"  {yylval.int_value = 3; return GREATER_THAN_T;}
 
 "update"       {yylval.string = strdup(yytext); return UPDATE;}
-"remove"       {yylval.string = strdup(yytext); return DELETE;}
+"delete"       {yylval.string = strdup(yytext); return DELETE;}
 "create"       {yylval.string = strdup(yytext); return CREATE;}
 "select_all"   {yylval.string = strdup(yytext); return ASTERISK;}
 

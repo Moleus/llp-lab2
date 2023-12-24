@@ -17,7 +17,6 @@
     char *string;
 
     FunctionType func_type;
-    FilterOperation filter_op;
     Filter *filter;
     Element *el;
 }

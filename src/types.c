@@ -3,13 +3,13 @@
 
 size_t g_malloc_bytes = 0;
 
-void print_filter(Filter *pFilter, int level);
-
 void *my_malloc(size_t size) {
     g_malloc_bytes += size;
     void *ptr = malloc(size);
     return ptr;
 }
+
+void print_filter(Filter *pFilter, int level);
 
 Element *create_boolean(bool value) {
     Element *el = my_malloc(sizeof(Element));
