@@ -25,10 +25,6 @@ typedef enum {
 } LogicalOperation;
 
 typedef enum {
-    TODO
-} FilterOperation;
-
-typedef enum {
     BOOLEAN_TYPE = 1,
     NUMBER_TYPE,
     DOUBLE_TYPE,
