@@ -76,8 +76,8 @@ int tab_level = 0;
 
 query
     : %empty  /* empty */
+    | query EOL
     | query node
-    | query node EOL
     | query node filters
     | function_call EOL
     ;
@@ -113,6 +113,9 @@ filters
 filter
     : LBRACKET filter_expr RBRACKET {
         $$ = $2;
+    }
+    | attribute {
+        $$ = create_filter_by_var_name($1);
     }
     ;
 

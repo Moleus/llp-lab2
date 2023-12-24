@@ -1,6 +1,8 @@
 #include "types.h"
 #include "assert.h"
 
+void print_filter(Filter *pFilter, int level);
+
 void *my_malloc(size_t size) {
     void *ptr = malloc(size);
     printf("[mem] Allocated %zu bytes\n", size);
@@ -53,7 +55,7 @@ Filter *create_filter(char *attribute, int operator, Element *value) {
             filter_expr->operation = GREATER_THAN_OP;
             break;
     }
-    filter_expr->is_single_value = false;
+    filter_expr->type = SELECT_BY_LOGICAL_OP;
     filter_expr->right = value;
     filter->filter = filter_expr;
     return filter;
@@ -63,9 +65,22 @@ Filter *create_filter_single_value(Element *value) {
     Filter *filter = my_malloc(sizeof(Filter));
     FilterExpr *filter_expr = my_malloc(sizeof(FilterExpr));
     filter_expr->operation = NO_OP;
-    filter_expr->is_single_value = true;
+    filter_expr->type = SELECT_BY_VALUE;
     filter_expr->right = value;
     filter->filter = filter_expr;
+    return filter;
+}
+
+Filter* create_filter_by_var_name(char *var_name) {
+    Filter *filter = my_malloc(sizeof(Filter));
+    FilterExpr *filter_expr = my_malloc(sizeof(FilterExpr));
+    Element *el = my_malloc(sizeof(Element));
+    filter_expr->operation = NO_OP;
+    filter_expr->type = SELECT_BY_PROP_NAME;
+    filter->filter = filter_expr;
+    filter_expr->right = el;
+    el->type = STRING_TYPE;
+    strcpy(filter_expr->right->string, var_name);
     return filter;
 }
 
@@ -137,19 +152,6 @@ void print_element(Element *el) {
     }
 }
 
-void print_path(Path paths[MAX_PATH_DEPTH], int path_len) {
-    for (int i = 0; i < path_len; i++) {
-        printf("%s", paths[i].node);
-        if (paths[i].type == ASTERISK_PATH) {
-            printf(".*");
-        }
-        if (i != path_len - 1) {
-            printf("/");
-        }
-    }
-    printf("\n");
-}
-
 void print_node(Node *node) {
     int indent_level = 0;
     while (node != NULL) {
@@ -160,39 +162,7 @@ void print_node(Node *node) {
             printf("Filters for node:\n");
             Filter *filter = node->filters;
             while (filter != NULL) {
-                if (filter->filter->is_single_value) {
-                    print_tab(indent_level);
-                    printf("  arg value: ");
-                    print_element(filter->filter->right);
-                    printf("\n");
-                } else {
-                    print_tab(indent_level);
-                    printf("  arg name: %s\n", filter->filter->left.name);
-                    print_tab(indent_level);
-                    printf("  operation: ");
-                    switch (filter->filter->operation) {
-                        case EQUALS_OP:
-                            printf("==");
-                            break;
-                        case NOT_EQUALS_OP:
-                            printf("!=");
-                            break;
-                        case LESS_THAN_OP:
-                            printf("<");
-                            break;
-                        case GREATER_THAN_OP:
-                            printf(">");
-                            break;
-                        case NO_OP:
-                            fprintf(stderr, "Error: NO_OP is not a valid operation\n");
-                            exit(1);
-                            break;
-                    }
-                    printf("\n");
-                    print_tab(indent_level);
-                    printf("  arg value: ");
-                    print_element(filter->filter->right);
-                }
+                print_filter(filter, indent_level);
                 if (filter->next != NULL) {
                     printf(", ");
                 }
@@ -205,6 +175,56 @@ void print_node(Node *node) {
         node = node->next;
     }
     printf("\n");
+}
+
+void print_filter(Filter *pFilter, int level) {
+    switch (pFilter->filter->type) {
+        case SELECT_BY_PROP_NAME:
+            print_tab(level);
+            printf("  filter type: select property\n");
+            print_tab(level);
+            printf("  arg name: %s\n", pFilter->filter->right->string);
+            break;
+        case SELECT_BY_VALUE:
+            print_tab(level);
+            printf("  filter type: select element\n");
+            print_tab(level);
+            printf("  arg value: ");
+            print_element(pFilter->filter->right);
+            printf("\n");
+            break;
+        case SELECT_BY_LOGICAL_OP:
+            print_tab(level);
+            printf("  filter type: select property by condition\n");
+            print_tab(level);
+            printf("  arg name: %s\n", pFilter->filter->left.name);
+            print_tab(level);
+            printf("  operation: ");
+            switch (pFilter->filter->operation) {
+                case EQUALS_OP:
+                    printf("==");
+                    break;
+                case NOT_EQUALS_OP:
+                    printf("!=");
+                    break;
+                case LESS_THAN_OP:
+                    printf("<");
+                    break;
+                case GREATER_THAN_OP:
+                    printf(">");
+                    break;
+                case NO_OP:
+                    fprintf(stderr, "Error: NO_OP is not a valid operation\n");
+                    exit(1);
+                    break;
+            }
+            printf("\n");
+            print_tab(level);
+            printf("  arg value: ");
+            print_element(pFilter->filter->right);
+            printf("\n");
+            break;
+    }
 }
 
 

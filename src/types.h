@@ -49,10 +49,17 @@ typedef struct {
     char name[MAX_STRING_SIZE];
 } FilterTarget;
 
+typedef enum {
+    SELECT_BY_PROP_NAME,
+    SELECT_BY_VALUE,
+    SELECT_BY_LOGICAL_OP,
+} FilterExprType;
+
 typedef struct {
     LogicalOperation operation;
     FilterTarget left;
     Element *right;
+    FilterExprType type;
     bool is_single_value;
 } FilterExpr;
 
@@ -101,6 +108,8 @@ Element *create_string(char *value);
 Filter *create_filter(char *attribute, int operator, Element *value);
 
 Filter *create_filter_single_value(Element *value);
+
+Filter* create_filter_by_var_name(char *var_name);
 
 FunctionType get_function_type(char *func);
 
