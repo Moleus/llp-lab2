@@ -40,7 +40,13 @@
 Примеры запуска программы:
 #img("images/filter-by-attribute.png", "Вывод элемента, у которого значение атрибута x = 1")
 
-#stodo("Добавить примеры запуска программы")
+#img("images/example-add-root-element-with-attribute.png", "Добавление корневого элемента foo с атрибутом bar = 42")
+
+#img("images/example-add-element-with-attribute.png", "Добавление дочернего элемента bar к foo с атрибутом baz = 42")
+
+#img("images/example-people-by-name-age.png", "Вывод age у элементов people, у которых name = 'Andrey'")
+
+#img("images/example-delete-all-from-foo-where-bar-hello.png", "Удаление всех дочерних элементов baz, у которых у foo атрибут bar = 'hello'")
 
 = Аспекты реализации
 Для реализации в синтаксис XPath были добавлены указания операций добавления и удаления, чтобы была возможность изменять элементы в документном дереве. Поддерживаемые функции: `create()` - создание элемента, `delete()` - удаление элемента, `update()` - обновление элемента.
